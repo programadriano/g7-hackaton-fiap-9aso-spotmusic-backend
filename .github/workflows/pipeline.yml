@@ -23,3 +23,24 @@ jobs:
 
       - name: Install Requirements
         run:  pip install flask flask-wtf flask-cors PyMySQL cryptography gunicorn
+  
+  Deploy-to-cloud-run:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3 # https://github.com/actions/checkout
+
+      - name: Auth GCP
+        uses: 'google-github-actions/auth@v1' # https://github.com/google-github-actions/auth
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+          env_vars: CLOUD_SQL_USERNAME=${{ env.CLOUD_SQL_USERNAME }}, CLOUD_SQL_PASSWORD=${{ secrets.CLOUD_SQL_PASSWORD }}, CLOUD_SQL_DATABASE_NAME=${{ env.CLOUD_SQL_DATABASE_NAME }}, DB_LOCAL_HOST=${{ env.DB_LOCAL_HOST }}, CLOUD_SQL_CONNECTION_NAME=${{ env.CLOUD_SQL_CONNECTION_NAME }} 
+
+      - name: Cloud Run Deploy
+        id: deploy
+        uses: 'google-github-actions/deploy-cloudrun@v1'  # https://github.com/marketplace/actions/deploy-to-cloud-run
+        with:
+          service: ${{ vars.GOOGLE_MYAPP }}
+          image:   ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest
+          flags: '--allow-unauthenticated'
