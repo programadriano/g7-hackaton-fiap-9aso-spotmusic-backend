@@ -45,7 +45,13 @@ jobs:
         uses: 'google-github-actions/auth@v1' # https://github.com/google-github-actions/auth
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-          env_vars: CLOUD_SQL_USERNAME=${{ env.CLOUD_SQL_USERNAME }}, CLOUD_SQL_PASSWORD=${{ secrets.CLOUD_SQL_PASSWORD }}, CLOUD_SQL_DATABASE_NAME=${{ env.CLOUD_SQL_DATABASE_NAME }}, DB_LOCAL_HOST=${{ env.DB_LOCAL_HOST }}, CLOUD_SQL_CONNECTION_NAME=${{ env.CLOUD_SQL_CONNECTION_NAME }} 
+          env_vars: |
+            CLOUD_SQL_USERNAME=${{ env.CLOUD_SQL_USERNAME }}
+            CLOUD_SQL_PASSWORD=${{ secrets.CLOUD_SQL_PASSWORD }}
+            CLOUD_SQL_DATABASE_NAME=${{ env.CLOUD_SQL_DATABASE_NAME }}
+            DB_LOCAL_HOST=${{ env.DB_LOCAL_HOST }}
+            CLOUD_SQL_CONNECTION_NAME=${{ env.CLOUD_SQL_CONNECTION_NAME }}
+          flags: '--add-cloudsql-instances=grupo-07:us-west1:main-instance' 
 
       - name: Cloud Run Deploy
         id: deploy
