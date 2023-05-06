@@ -24,6 +24,11 @@ jobs:
       - name: Install Requirements
         run:  pip install flask flask-wtf flask-cors PyMySQL cryptography gunicorn
 
+      - name: Docker Login
+        run: | 
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > key.json
+          cat key.json | docker login -u _json_key --password-stdin '${{ vars.GOOGLE_ARTIFACT }}'
+
       - name: Build & Push Image
         run: |
           docker build -t ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest .
@@ -49,3 +54,6 @@ jobs:
           service: ${{ vars.GOOGLE_MYAPP }}
           image:   ${{ vars.GOOGLE_ARTIFACT }}/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_REPONAME }}/${{ vars.GOOGLE_MYAPP }}:latest
           flags: '--allow-unauthenticated'
+      
+      - name: Test Prod
+        run: 'curl "${{ steps.deploy.outputs.url }}"'
